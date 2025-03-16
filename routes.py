@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask_login import login_required, current_user
 from models import User
 from app import db
 from loguru import logger
@@ -12,9 +13,10 @@ def index():
     return render_template('index.html', title='Home')
 
 @main.route('/dashboard')
+@login_required
 def dashboard():
     """Dashboard page route"""
-    return render_template('dashboard.html', title='Dashboard')
+    return render_template('dashboard.html', title='Dashboard', cron_jobs=[])
 
 # Error handlers
 @main.errorhandler(404)

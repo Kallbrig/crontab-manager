@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_dotenv import DotEnv
+from flask_login import LoginManager
 from loguru import logger
 import os
 
@@ -9,6 +10,8 @@ import os
 db = SQLAlchemy()
 migrate = Migrate()
 env = DotEnv()
+login = LoginManager()
+login.login_view = 'auth.login'
 
 def create_app():
     app = Flask(__name__)
@@ -22,13 +25,16 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     env.init_app(app)
+    login.init_app(app)
 
     # Configure logging
     logger.add("logs/app.log", rotation="500 MB", retention="10 days")
 
     # Register blueprints
     from routes import main
+    from auth import auth
     app.register_blueprint(main)
+    app.register_blueprint(auth, url_prefix='/auth')
 
     # Create database tables
     with app.app_context():
