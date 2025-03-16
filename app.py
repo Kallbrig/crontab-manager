@@ -1,10 +1,10 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_dotenv import DotEnv
 from flask_login import LoginManager
 from loguru import logger
-import os
 
 # Initialize Flask extensions
 db = SQLAlchemy()
@@ -12,6 +12,9 @@ migrate = Migrate()
 env = DotEnv()
 login = LoginManager()
 login.login_view = 'auth.login'
+
+# Import models here after db is defined
+from models import User, CronJob  # noqa: F401
 
 def create_app():
     app = Flask(__name__)
@@ -23,7 +26,6 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
     env.init_app(app)
     login.init_app(app)
 
@@ -38,7 +40,12 @@ def create_app():
 
     # Create database tables
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            logger.info("Database tables created successfully")
+        except Exception as e:
+            logger.error(f"Error creating database tables: {e}")
+            raise
 
     return app
 
