@@ -26,9 +26,9 @@
                         {% if cron_jobs %}
                             {% for job in cron_jobs %}
                                 <tr>
-                                    <td>{{ job.schedule }}</td>
-                                    <td>{{ job.command }}</td>
-                                    <td>
+                                    <td data-schedule="{{ job.schedule }}">{{ job.schedule }}</td>
+                                    <td data-command="{{ job.command }}">{{ job.command }}</td>
+                                    <td data-enabled="{{ job.enabled }}">
                                         {% if job.enabled %}
                                             <span class="badge bg-success">Active</span>
                                         {% else %}
@@ -74,7 +74,7 @@
                 <h5 class="modal-title">New Cron Job</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('main.create_cron_job') }}">
+            <form method="POST" action="{{ url_for('main.create_cron_job') }}" class="needs-validation" novalidate>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="schedule" class="form-label">Schedule (Cron Expression)</label>
@@ -110,7 +110,7 @@
                 <h5 class="modal-title">Edit Cron Job</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('main.edit_cron_job', job_id='') }}">
+            <form method="POST" action="#" class="needs-validation" novalidate>
                 <div class="modal-body">
                     <!-- Form fields will be populated via JavaScript -->
                     <div class="mb-3">
@@ -151,7 +151,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="POST" action="{{ url_for('main.delete_cron_job', job_id='') }}" class="d-inline">
+                <form method="POST" action="#" class="d-inline">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
@@ -163,6 +163,26 @@
 {% block scripts %}
 {{ super() }}
 <script>
+// Form validation
+(function () {
+    'use strict'
+    
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
 document.addEventListener('DOMContentLoaded', function() {
     // Handle Edit Modal
     const editModal = document.getElementById('editCronJobModal');
@@ -171,10 +191,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const button = event.relatedTarget;
             const jobId = button.getAttribute('data-job-id');
             const form = editModal.querySelector('form');
-            form.action = form.action + jobId;
+            form.action = "{{ url_for('main.edit_cron_job', job_id=0) }}".replace('0', jobId);
             
-            // TODO: Fetch job details and populate form
-            // This will be implemented when we add the backend functionality
+            // Fetch job details and populate form
+            const tr = button.closest('tr');
+            const schedule = tr.querySelector('[data-schedule]').dataset.schedule;
+            const command = tr.querySelector('[data-command]').dataset.command;
+            const enabled = tr.querySelector('[data-enabled]').dataset.enabled === 'true';
+            
+            // Populate form fields
+            editModal.querySelector('#edit_schedule').value = schedule;
+            editModal.querySelector('#edit_command').value = command;
+            editModal.querySelector('#edit_enabled').checked = enabled;
         });
     }
 
@@ -185,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const button = event.relatedTarget;
             const jobId = button.getAttribute('data-job-id');
             const form = deleteModal.querySelector('form');
-            form.action = form.action + jobId;
+            form.action = "{{ url_for('main.delete_cron_job', job_id=0) }}".replace('0', jobId);
         });
     }
 });
