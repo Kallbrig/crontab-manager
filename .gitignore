@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+.env
+venv/
+.env.local
+.env.production
+.Python
+*.sqlite3
+*.db
+
+# VS Code
+.vscode/
+.settings/
+
+# Flask specific
+instance/
+.webassets-cache
+app.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Test and coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+test-results.xml
+*.cover
+*.log
+
+# Configuration files
+*.csv
+*.yml
+*.yaml
+*.json
+
+# PyInstaller
+# Usually these files are written by a python script from a .spec file
+*.spec
